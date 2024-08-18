@@ -15,7 +15,7 @@
   // connected. This is typically a file mount in .devcontainer/docker-compose.yml
   "workspaceFolder": "/src",
   "features": {
-    "ghcr.io/devcontainers/features/dotnet:2": {}
+    "ghcr.io/devcontainers/features/dotnet:2": {},
   }
 
   // Features to add to the dev container. More info: https://containers.dev/features.
