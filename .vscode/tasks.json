@@ -36,6 +36,58 @@
         "${workspaceFolder}/vem.generated.sln"
       ],
       "problemMatcher": "$msCompile"
+    },
+    {
+      "type": "docker-build",
+      "label": "docker-build: debug",
+      "dependsOn": ["build"],
+      "dockerBuild": {
+        "tag": "vem:dev",
+        "target": "base",
+        "dockerfile": "${workspaceFolder}/Vem/Dockerfile",
+        "context": "${workspaceFolder}",
+        "pull": true
+      },
+      "netCore": {
+        "appProject": "${workspaceFolder}/Vem/Vem.csproj"
+      }
+    },
+    {
+      "type": "docker-build",
+      "label": "docker-build: release",
+      "dependsOn": ["build"],
+      "dockerBuild": {
+        "tag": "vem:latest",
+        "dockerfile": "${workspaceFolder}/Vem/Dockerfile",
+        "context": "${workspaceFolder}",
+        "platform": {
+          "os": "linux",
+          "architecture": "amd64"
+        },
+        "pull": true
+      },
+      "netCore": {
+        "appProject": "${workspaceFolder}/Vem/Vem.csproj"
+      }
+    },
+    {
+      "type": "docker-run",
+      "label": "docker-run: debug",
+      "dependsOn": ["docker-build: debug"],
+      "dockerRun": {},
+      "netCore": {
+        "appProject": "${workspaceFolder}/Vem/Vem.csproj",
+        "enableDebugging": true
+      }
+    },
+    {
+      "type": "docker-run",
+      "label": "docker-run: release",
+      "dependsOn": ["docker-build: release"],
+      "dockerRun": {},
+      "netCore": {
+        "appProject": "${workspaceFolder}/Vem/Vem.csproj"
+      }
     }
   ]
 }
