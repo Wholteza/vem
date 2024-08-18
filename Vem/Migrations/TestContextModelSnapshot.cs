@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using vem.Database.Contexts;
+using Vem.Database.Contexts;
 
 #nullable disable
 
-namespace vem.Migrations
+namespace Vem.Migrations
 {
     [DbContext(typeof(TestContext))]
     partial class TestContextModelSnapshot : ModelSnapshot

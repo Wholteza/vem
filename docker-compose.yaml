@@ -1,10 +1,14 @@
 services:
   web:
-    build: .
+    build:
+      context: ./dockerfiles
+      dockerfile: local.dockerfile
     ports:
-      - "5000:5000"
+      - "5184:5184"
     depends_on:
       - db
+    volumes:
+      - .:/src
   db:
     image: postgres
     environment:

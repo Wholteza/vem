@@ -10,7 +10,7 @@
       "request": "launch",
       "preLaunchTask": "build",
       // If you have changed target frameworks, make sure to update the program path.
-      "program": "${workspaceFolder}/bin/Debug/net8.0/vem.dll",
+      "program": "${workspaceFolder}/Vem/bin/Debug/net8.0/Vem.dll",
       "args": [],
       "cwd": "${workspaceFolder}",
       "stopAtEntry": false,
