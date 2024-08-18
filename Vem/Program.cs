@@ -9,7 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin()));
 builder.Services.AddScoped<TestContext>();
 builder.Services.AddOptions<PostgresqlOptions>().Bind(builder.Configuration.GetSection(PostgresqlOptions.OptionsSectionKey));
-
+builder.Configuration.AddUserSecrets(System.Reflection.Assembly.GetExecutingAssembly());
 
 var app = builder.Build();
 

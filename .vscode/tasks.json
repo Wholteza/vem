@@ -40,9 +40,11 @@
     {
       "type": "docker-build",
       "label": "docker-build: debug",
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "dockerBuild": {
-        "tag": "vem:dev",
+        "tag": "src:dev",
         "target": "base",
         "dockerfile": "${workspaceFolder}/Vem/Dockerfile",
         "context": "${workspaceFolder}",
@@ -55,9 +57,11 @@
     {
       "type": "docker-build",
       "label": "docker-build: release",
-      "dependsOn": ["build"],
+      "dependsOn": [
+        "build"
+      ],
       "dockerBuild": {
-        "tag": "vem:latest",
+        "tag": "src:latest",
         "dockerfile": "${workspaceFolder}/Vem/Dockerfile",
         "context": "${workspaceFolder}",
         "platform": {
@@ -73,7 +77,9 @@
     {
       "type": "docker-run",
       "label": "docker-run: debug",
-      "dependsOn": ["docker-build: debug"],
+      "dependsOn": [
+        "docker-build: debug"
+      ],
       "dockerRun": {},
       "netCore": {
         "appProject": "${workspaceFolder}/Vem/Vem.csproj",
@@ -83,10 +89,28 @@
     {
       "type": "docker-run",
       "label": "docker-run: release",
-      "dependsOn": ["docker-build: release"],
+      "dependsOn": [
+        "docker-build: release"
+      ],
       "dockerRun": {},
       "netCore": {
         "appProject": "${workspaceFolder}/Vem/Vem.csproj"
+      }
+    },
+    {
+      "type": "docker-run",
+      "label": "debug",
+      "dockerRun": {
+        "env": {
+          "ASPNETCORE_URLS": "http://+:5226",
+          "ASPNETCORE_ENVIRONMENT": "Development"
+        }
+      },
+      "netCore": {
+        "appProject": "${workspaceFolder}/Vem/Vem.csproj",
+        "enableDebugging": true,
+        "configureSsl": true,
+        "launchBrowser": true
       }
     }
   ]

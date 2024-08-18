@@ -36,6 +36,13 @@
       "netCore": {
         "appProject": "${workspaceFolder}/Vem/Vem.csproj"
       }
+    },
+    {
+      "name": "Debug attached container",
+      "type": "coreclr",
+      "request": "attach",
+      "processId" : 1102,
     }
+
   ]
 }

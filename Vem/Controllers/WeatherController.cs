@@ -23,14 +23,6 @@ public class WeatherController : ControllerBase
   }
 
   [HttpGet]
-  [Route("arst")]
-  [ProducesResponseType<string>(StatusCodes.Status200OK)]
-  public IActionResult arst()
-  {
-    return Ok(testContext.Tests.ToList());
-  }
-
-  [HttpGet]
   [Route("get")]
   [ProducesResponseType<string>(StatusCodes.Status200OK)]
   public IActionResult Get([FromQuery] int id)
