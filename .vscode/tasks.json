@@ -112,6 +112,21 @@
         "configureSsl": true,
         "launchBrowser": true
       }
+    },
+    {
+      "label": "applyMigrations",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "ef",
+        "database",
+        "update",
+        "--project",
+        "${workspaceFolder}/Vem/Vem.csproj",
+        "--startup-project",
+        "${workspaceFolder}/Vem/Vem.csproj",
+        "--verbose"
+      ],
     }
   ]
 }
