@@ -4,7 +4,8 @@ services:
       context: ./dockerfiles
       dockerfile: local.dockerfile
     ports:
-      - "5184:5184"
+      - "5000:5000"
+      - "5001:5001"
     depends_on:
       - db
     volumes:
