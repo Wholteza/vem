@@ -1,15 +1,12 @@
 using Database.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Vem.Database.Models;
-using Vem.Options;
 
 namespace Vem.Database.Contexts;
 
 public class ApplicationSettingsContext : DbContext
 {
 
-  public string ConnectionString { get; set; }
   public DbSet<ApplicationSetting> ApplicationSettings { get; set; }
 
   public bool AdminAccountInitialized
@@ -43,21 +40,9 @@ public class ApplicationSettingsContext : DbContext
     }
   }
 
-
-  public ApplicationSettingsContext(IOptions<PostgresqlOptions> options)
+  public ApplicationSettingsContext(DbContextOptions<ApplicationSettingsContext> options) : base(options)
   {
-    var connectionString = options.Value.ConnectionString;
-    if (string.IsNullOrWhiteSpace(connectionString))
-    {
-      throw new ArgumentNullException(nameof(connectionString));
-    }
-    ConnectionString = connectionString;
   }
-  protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-  {
-    optionsBuilder.UseNpgsql(ConnectionString);
-  }
-
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     base.OnModelCreating(modelBuilder);
