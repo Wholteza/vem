@@ -21,5 +21,7 @@ This project utilizes the devcontainers project.
 
 **Adjust these for devcontainer**
 
-dotnet ef migrations add <name>
-dotnet ef database update
+dotnet ef migrations add <name> --project Vem --context ApplicationSettingsContext
+dotnet ef migrations add <name> --project Vem --context TestContext
+dotnet ef database update --project Vem --context ApplicationSettingsContext
+dotnet ef database update --project Vem --context TestContext

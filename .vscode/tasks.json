@@ -114,7 +114,7 @@
       }
     },
     {
-      "label": "applyMigrations",
+      "label": "applyMigrationsApplicationSettings",
       "command": "dotnet",
       "type": "process",
       "args": [
@@ -123,6 +123,8 @@
         "update",
         "--project",
         "${workspaceFolder}/Vem/Vem.csproj",
+        "--context",
+        "ApplicationSettingsContext",
         "--startup-project",
         "${workspaceFolder}/Vem/Vem.csproj",
         "--verbose"

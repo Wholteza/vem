@@ -23,10 +23,10 @@
       }
     },
     {
-      "name": "Apply migrations",
+      "name": "Apply migrations: ApplicationSettings",
       "type": "coreclr",
       "request": "launch",
-      "preLaunchTask": "applyMigrations",
+      "preLaunchTask": "applyMigrationsApplicationSettings",
       "program": "${workspaceFolder}/Vem/bin/Debug/net8.0/Vem.dll",
       "args": [
         "dbcontext",

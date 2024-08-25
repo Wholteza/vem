@@ -18,9 +18,14 @@ services:
       - db-data:/var/lib/postgresql/data
     ports:
       - 5432:5432
-  adminer:
-    image: adminer
+  pgadmin:
+    image: dpage/pgadmin4
     ports:
-      - 8080:8080
+      - 8080:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: arst@arst.se
+      PGADMIN_DEFAULT_PASSWORD: arst
+      PGADMIN_LISTEN_ADDRESS: "0.0.0.0"
+
 volumes:
   db-data:

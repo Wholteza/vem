@@ -8,10 +8,29 @@ namespace Vem.Controllers;
 public class WeatherController : ControllerBase
 {
   private readonly TestContext testContext;
+  private readonly ApplicationSettingsContext applicationSettingsContext;
 
-  public WeatherController(TestContext testContext)
+  public WeatherController(TestContext testContext, ApplicationSettingsContext applicationSettingsContext)
   {
     this.testContext = testContext;
+    this.applicationSettingsContext = applicationSettingsContext;
+  }
+
+  [HttpGet]
+  [Route("admin-account-initialized")]
+  [ProducesResponseType<string>(StatusCodes.Status200OK)]
+  public IActionResult IsInitialized()
+  {
+    return Ok(applicationSettingsContext.AdminAccountInitialized);
+  }
+
+  [HttpPost]
+  [Route("admin-account-initialized")]
+  [ProducesResponseType<string>(StatusCodes.Status200OK)]
+  public IActionResult SetIsInitialized(bool value)
+  {
+    applicationSettingsContext.AdminAccountInitialized = value;
+    return Ok();
   }
 
   [HttpGet]
