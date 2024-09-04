@@ -11,7 +11,7 @@ using Vem.Database.Contexts;
 namespace Vem.Migrations.Identity
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20240904172055_PasswordAuthenticationMethod")]
+    [Migration("20240904180246_PasswordAuthenticationMethod")]
     partial class PasswordAuthenticationMethod
     {
         /// <inheritdoc />
@@ -79,6 +79,9 @@ namespace Vem.Migrations.Identity
                     b.HasBaseType("Database.Models.AuthenticationMethod");
 
                     b.Property<string>("PasswordHash")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Salt")
                         .HasColumnType("text");
 
                     b.ToTable("PasswordAuthentications", (string)null);

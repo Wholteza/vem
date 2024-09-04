@@ -78,6 +78,9 @@ namespace Vem.Migrations.Identity
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text");
 
+                    b.Property<string>("Salt")
+                        .HasColumnType("text");
+
                     b.ToTable("PasswordAuthentications", (string)null);
                 });
 #pragma warning restore 612, 618

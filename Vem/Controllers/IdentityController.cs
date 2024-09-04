@@ -28,7 +28,7 @@ public class IdentityController : ControllerBase
   }
 
   [HttpPost]
-  [Route("identity")]
+  [Route("identity/admin")]
   [ProducesResponseType<string>(StatusCodes.Status200OK)]
   public async Task<IActionResult> Create(CreateIdentity requestModel)
   {
@@ -37,14 +37,14 @@ public class IdentityController : ControllerBase
     using var transaction = await identityContext.Database.BeginTransactionAsync();
     await applicationSettingsContext.Database.UseTransactionAsync(transaction.GetDbTransaction());
 
-    var identity = await identityContext.Identities.AddAsync(new Identity
+    var identity = await identityContext.CreateIdentityWithPasswordAuthentication(new Identity
     {
       FirstName = requestModel.FirstName,
       LastName = requestModel.LastName,
       Nickname = requestModel.Nickname,
       Email = requestModel.Email,
       IsAdmin = true
-    });
+    }, requestModel.Password);
 
     applicationSettingsContext.AdminAccountInitialized = true;
 
@@ -52,6 +52,6 @@ public class IdentityController : ControllerBase
 
     await transaction.CommitAsync();
 
-    return Ok(identity.Entity);
+    return Ok(identity);
   }
 }
