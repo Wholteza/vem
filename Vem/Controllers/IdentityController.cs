@@ -48,6 +48,8 @@ public class IdentityController : ControllerBase
 
     applicationSettingsContext.AdminAccountInitialized = true;
 
+    identityContext.SaveChanges();
+
     await transaction.CommitAsync();
 
     return Ok(identity.Entity);
