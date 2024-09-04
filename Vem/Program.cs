@@ -15,7 +15,6 @@ builder.Configuration.AddUserSecrets(System.Reflection.Assembly.GetExecutingAsse
 
 DbConnection dbConnection = new NpgsqlConnection(builder.Configuration.GetSection(PostgresqlOptions.OptionsSectionKey).Get<PostgresqlOptions>()?.ConnectionString);
 DbContextOptionsBuilder optionsBuilder = new DbContextOptionsBuilder().UseNpgsql(builder.Configuration.GetSection(PostgresqlOptions.OptionsSectionKey).Get<PostgresqlOptions>()?.ConnectionString);
-builder.Services.AddScoped(provider => new TestContext(new DbContextOptionsBuilder<TestContext>().UseNpgsql(dbConnection).Options));
 builder.Services.AddScoped(provider => new ApplicationSettingsContext(new DbContextOptionsBuilder<ApplicationSettingsContext>().UseNpgsql(dbConnection).Options));
 builder.Services.AddScoped(provider => new IdentityContext(new DbContextOptionsBuilder<IdentityContext>().UseNpgsql(dbConnection).Options));
 
