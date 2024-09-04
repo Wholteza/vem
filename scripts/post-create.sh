@@ -4,3 +4,4 @@ dotnet user-secrets set --project Vem/Vem.csproj "Postgresql:ConnectionString" "
 dotnet tool install dotnet-ef -g
 dotnet ef database update --project Vem --context ApplicationSettingsContext
 dotnet ef database update --project Vem --context TestContext
+dotnet ef database update --project Vem --context IdentityContext
