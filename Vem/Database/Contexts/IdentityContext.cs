@@ -46,6 +46,16 @@ public class IdentityContext : DbContext
     return identity;
   }
 
+  public bool ValidatePassword(Identity identity, string password)
+  {
+    var authenticationMethod = AuthenticationMethods.OfType<PasswordAuthentication>().FirstOrDefault(authenticationMethod => authenticationMethod.IdentityId == identity.Id);
+
+    if (authenticationMethod == null) return false;
+    if (string.IsNullOrEmpty(authenticationMethod.Salt)) return false;
+
+    return authenticationMethod.PasswordHash == GenerateHash(password, authenticationMethod.Salt);
+  }
+
   private static string GenerateSalt() => Guid.NewGuid().ToString();
 
   private string GenerateHash(string password, string salt)
