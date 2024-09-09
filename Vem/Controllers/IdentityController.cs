@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Vem.Controllers.Models.Requests;
+using Vem.Controllers.Models.Response;
 using Vem.Database.Contexts;
 using Vem.Database.Models;
 using Vem.Options;
@@ -44,8 +45,14 @@ public class AuthenticationController : ControllerBase
   [ProducesResponseType<string>(StatusCodes.Status200OK)]
   public IActionResult Validate()
   {
-    string authHeader = Request.Headers["Authorization"];
-    return Ok(ValidateJwtToken(authHeader.Replace("Bearer ", "")));
+    string authHeader = Request.Headers["Authorization"].FirstOrDefault() ?? "";
+    var claimsPricipal = ValidateJwtToken(authHeader.Replace("Bearer ", ""));
+    return Ok(new TokenValidation
+    {
+      IsValid = claimsPricipal is not null,
+      ValidUntil = claimsPricipal?.Claims.FirstOrDefault(claim => claim.Type == "exp")?.Value is not null ? new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(long.Parse(claimsPricipal.Claims.FirstOrDefault(claim => claim.Type == "exp")?.Value)) : null,
+      IssuedAt = claimsPricipal?.Claims.FirstOrDefault(claim => claim.Type == "iat")?.Value is not null ? new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(long.Parse(claimsPricipal.Claims.FirstOrDefault(claim => claim.Type == "iat")?.Value)) : null
+    });
   }
 
   private string GenerateJwtToken(Identity identity)
@@ -77,7 +84,7 @@ public class AuthenticationController : ControllerBase
     return tokenHandler.WriteToken(token);
   }
 
-  private ClaimsPrincipal ValidateJwtToken(string token)
+  private ClaimsPrincipal? ValidateJwtToken(string token)
   {
     var tokenHandler = new JwtSecurityTokenHandler();
     if (authenticationOptions.Value.Secret is null) throw new Exception("Secret not set");
@@ -95,8 +102,14 @@ public class AuthenticationController : ControllerBase
 
     // Validate the token and return the principal (claims)
     SecurityToken validatedToken;
-    ClaimsPrincipal principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
-
-    return principal;
+    try
+    {
+      ClaimsPrincipal principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
+      return principal;
+    }
+    catch (SecurityTokenExpiredException)
+    {
+      return null;
+    }
   }
 }
