@@ -29,10 +29,10 @@ public class TokenService(IOptions<AuthenticationOptions> authenticationOptions)
       ClockSkew = TimeSpan.Zero
     };
 
-    SecurityToken validatedToken;
     try
     {
-      ClaimsPrincipal principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
+      if (string.IsNullOrEmpty(token)) return null;
+      var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
       return principal;
     }
     catch (SecurityTokenExpiredException)

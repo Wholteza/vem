@@ -1,9 +1,14 @@
 using System.Data.Common;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using Vem.Authentication;
+using Vem.Authorization;
 using Vem.Database.Contexts;
 using Vem.Options;
 using Vem.Services;
+using AuthenticationOptions = Vem.Options.AuthenticationOptions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,8 +41,26 @@ builder.Services.AddScoped(provider => new ApplicationSettingsContext(new DbCont
 builder.Services.AddScoped(provider => new IdentityContext(new DbContextOptionsBuilder<IdentityContext>().UseNpgsql(dbConnection).Options, builder.Configuration.GetSection(AuthenticationOptions.OptionsSectionKey).Get<AuthenticationOptions>()));
 
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<CustomAuthorizationHandler>();
+
+// Add authorization and configure policy
+builder.Services.AddAuthorization(options =>
+{
+  options.AddPolicy("CustomPolicy", policy =>
+              policy.Requirements.Add(new IsAdminAuthorizationRequirement()));
+});
+
+// Register the custom handler
+builder.Services.AddSingleton<IAuthorizationHandler, CustomAuthorizationHandler>();
+
+// Add other necessary services like authentication, etc.
+builder.Services.AddAuthentication("CustomScheme")
+    .AddScheme<AuthenticationSchemeOptions, CustomAuthenticationHandler>("CustomScheme", null);
 
 var app = builder.Build();
+
+app.UseAuthorization();
+app.UseAuthentication();
 
 app.UseSwagger();
 app.UseSwaggerUI();

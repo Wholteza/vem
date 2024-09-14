@@ -1,3 +1,5 @@
+using System.Security.Claims;
+
 namespace Vem.Database.Models;
 public class Identity
 {
