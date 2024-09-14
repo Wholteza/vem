@@ -30,7 +30,7 @@ public class IdentityController : ControllerBase
   [HttpPost]
   [Route("identity/admin")]
   [ProducesResponseType<string>(StatusCodes.Status200OK)]
-  public async Task<IActionResult> Create(CreateIdentity requestModel)
+  public async Task<IActionResult> CreateAdminIdentity(CreateIdentity requestModel)
   {
     if (applicationSettingsContext.AdminAccountInitialized) return BadRequest("Admin account already initialized");
 
@@ -44,6 +44,35 @@ public class IdentityController : ControllerBase
       Nickname = requestModel.Nickname,
       Email = requestModel.Email,
       IsAdmin = true
+    }, requestModel.Password);
+
+    applicationSettingsContext.AdminAccountInitialized = true;
+
+    identityContext.SaveChanges();
+
+    await transaction.CommitAsync();
+
+    return Ok(identity);
+  }
+
+  [HttpPost]
+  [Route("identity")]
+  [ProducesResponseType<string>(StatusCodes.Status200OK)]
+  public async Task<IActionResult> CreateIdentity(CreateIdentity requestModel)
+  {
+    // check token and that the account is an admin account
+    if (applicationSettingsContext.AdminAccountInitialized) return BadRequest("Admin account already initialized");
+
+    using var transaction = await identityContext.Database.BeginTransactionAsync();
+    await applicationSettingsContext.Database.UseTransactionAsync(transaction.GetDbTransaction());
+
+    var identity = await identityContext.CreateIdentityWithPasswordAuthentication(new Identity
+    {
+      FirstName = requestModel.FirstName,
+      LastName = requestModel.LastName,
+      Nickname = requestModel.Nickname,
+      Email = requestModel.Email,
+      IsAdmin = false
     }, requestModel.Password);
 
     applicationSettingsContext.AdminAccountInitialized = true;

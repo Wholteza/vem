@@ -1,31 +1,20 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Vem.Controllers.Models.Requests;
 using Vem.Controllers.Models.Response;
 using Vem.Database.Contexts;
-using Vem.Database.Models;
 using Vem.Options;
+using Vem.Services;
 
 namespace Vem.Controllers;
 
 [ApiController]
-public class AuthenticationController : ControllerBase
+public class AuthenticationController(
+  IdentityContext identityContext, TokenService tokenService) : ControllerBase
 {
-  private readonly IdentityContext identityContext;
-  private readonly ApplicationSettingsContext applicationSettingsContext;
-  private readonly IOptions<AuthenticationOptions> authenticationOptions;
-
-  public AuthenticationController(IdentityContext identityContext, ApplicationSettingsContext applicationSettingsContext, IOptions<AuthenticationOptions> authenticationOptions)
-  {
-    this.identityContext = identityContext;
-    this.applicationSettingsContext = applicationSettingsContext;
-    this.authenticationOptions = authenticationOptions;
-  }
+  private readonly IdentityContext identityContext = identityContext;
+  private readonly TokenService tokenService = tokenService;
 
   [HttpPost]
   [Route("authentication/login")]
@@ -36,7 +25,7 @@ public class AuthenticationController : ControllerBase
     if (identity is null || string.IsNullOrEmpty(requestModel.Password)) return BadRequest("Invalid email or password");
     var isValid = identityContext.ValidatePassword(identity, requestModel.Password);
 
-    return Ok(GenerateJwtToken(identity));
+    return Ok(tokenService.GenerateJwtToken(identity));
   }
 
   [HttpPost]
@@ -45,7 +34,7 @@ public class AuthenticationController : ControllerBase
   public IActionResult Validate()
   {
     string authHeader = Request.Headers["Authorization"].FirstOrDefault() ?? "";
-    var claimsPricipal = ValidateJwtToken(authHeader.Replace("Bearer ", ""));
+    var claimsPricipal = tokenService.ValidateJwtToken(authHeader.Replace("Bearer ", ""));
     var validUntil = claimsPricipal?.Claims.FirstOrDefault(claim => claim.Type == "exp")?.Value;
     var issuedAt = claimsPricipal?.Claims.FirstOrDefault(claim => claim.Type == "iat")?.Value;
     return Ok(new TokenValidation
@@ -54,63 +43,5 @@ public class AuthenticationController : ControllerBase
       ValidUntil = validUntil is not null ? new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(long.Parse(validUntil)) : null,
       IssuedAt = issuedAt is not null ? new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(long.Parse(issuedAt)) : null
     });
-  }
-
-  private string GenerateJwtToken(Identity identity)
-  {
-    // Define token handler
-    var tokenHandler = new JwtSecurityTokenHandler();
-
-    if (authenticationOptions.Value.Secret is null) throw new Exception("Secret not set");
-
-    // Define a secret key for signing the token
-    var key = Encoding.ASCII.GetBytes(authenticationOptions.Value.Secret); // Replace with your secret key
-
-    // Define token descriptor
-    var tokenDescriptor = new SecurityTokenDescriptor
-    {
-      Subject = new ClaimsIdentity(
-        [
-                new Claim(ClaimTypes.Name, $"{identity.FirstName} {identity.LastName}"),
-                new Claim(ClaimTypes.Role, identity.IsAdmin ? "Admin" : "User")
-            ]),
-      Expires = DateTime.UtcNow.AddHours(1),
-      SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-    };
-
-    // Create the token
-    var token = tokenHandler.CreateToken(tokenDescriptor);
-
-    // Return the serialized token
-    return tokenHandler.WriteToken(token);
-  }
-
-  private ClaimsPrincipal? ValidateJwtToken(string token)
-  {
-    var tokenHandler = new JwtSecurityTokenHandler();
-    if (authenticationOptions.Value.Secret is null) throw new Exception("Secret not set");
-    var key = Encoding.ASCII.GetBytes(authenticationOptions.Value.Secret); // Replace with your secret key
-
-    var validationParameters = new TokenValidationParameters
-    {
-      ValidateIssuerSigningKey = true,  // Ensure the token's signature is valid
-      IssuerSigningKey = new SymmetricSecurityKey(key),  // Provide the same key used to generate the token
-      ValidateIssuer = false,           // (Optional) Specify whether to validate the token's issuer
-      ValidateAudience = false,         // (Optional) Specify whether to validate the token's audience
-      ValidateLifetime = true,          // Ensure the token hasn't expired
-      ClockSkew = TimeSpan.Zero         // Time tolerance to account for potential clock differences
-    };
-
-    // Validate the token and return the principal (claims)
-    SecurityToken validatedToken;
-    try
-    {
-      ClaimsPrincipal principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
-      return principal;
-    }
-    catch (SecurityTokenExpiredException)
-    {
-      return null;
-    }
   }
 }

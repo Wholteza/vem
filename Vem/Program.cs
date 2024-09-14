@@ -3,11 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using Vem.Database.Contexts;
 using Vem.Options;
+using Vem.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(c =>
 {
   c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme { In = Microsoft.OpenApi.Models.ParameterLocation.Header, Description = "Please enter into field the word 'Bearer' following by space", Name = "Authorization" });
@@ -24,10 +24,8 @@ builder.Services.AddSwaggerGen(c =>
   });
 
 });
-
 builder.Services.AddControllers();
 builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy.AllowAnyOrigin()));
-
 builder.Configuration.AddUserSecrets(System.Reflection.Assembly.GetExecutingAssembly());
 
 builder.Services.Configure<AuthenticationOptions>(builder.Configuration.GetSection(AuthenticationOptions.OptionsSectionKey));
@@ -37,6 +35,7 @@ DbContextOptionsBuilder optionsBuilder = new DbContextOptionsBuilder().UseNpgsql
 builder.Services.AddScoped(provider => new ApplicationSettingsContext(new DbContextOptionsBuilder<ApplicationSettingsContext>().UseNpgsql(dbConnection).Options));
 builder.Services.AddScoped(provider => new IdentityContext(new DbContextOptionsBuilder<IdentityContext>().UseNpgsql(dbConnection).Options, builder.Configuration.GetSection(AuthenticationOptions.OptionsSectionKey).Get<AuthenticationOptions>()));
 
+builder.Services.AddScoped<TokenService>();
 
 var app = builder.Build();
 
